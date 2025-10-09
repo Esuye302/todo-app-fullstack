@@ -8,6 +8,10 @@ const registerController = async (req, res) => {
     const userData = req.body;
 
     const user = await registerUserService(userData);
+    res.status(201).json({
+      message: "User registered successfully",
+      user,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -16,9 +20,13 @@ const registerController = async (req, res) => {
 const loginController = async (req, res) => {
   try {
     const credentials = req.body;
+
     const user = await loginUserService(credentials);
-    res.status(200).json({ user });
-    console.log(user)
+
+    res.status(200).json({
+      message: "Login successful",
+      token: user,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
