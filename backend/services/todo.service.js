@@ -23,12 +23,39 @@ export const getTodoByIdService = async (userId, todoId) => {
   return rows[0]; // return single todo
 };
 
+// services/todo.service.js
 export const updateTodoService = async (userId, todoId, data) => {
   const { title, description, completed } = data;
+  
+  // Build dynamic update query based on what fields are provided
+  const updates = [];
+  const values = [];
+  
+  if (title !== undefined) {
+    updates.push("title = ?");
+    values.push(title);
+  }
+  if (description !== undefined) {
+    updates.push("description = ?");
+    values.push(description);
+  }
+  if (completed !== undefined) {
+    updates.push("completed = ?");
+    values.push(completed);
+  }
+  
+  if (updates.length === 0) {
+    throw new Error("No fields to update");
+  }
+  
+  // Add WHERE clause values
+  values.push(todoId, userId);
+  
   await query(
-    "UPDATE todos SET title = ?, description = ?, completed = ? WHERE id = ? AND user_id = ?",
-    [title, description, completed, todoId, userId]
+    `UPDATE todos SET ${updates.join(", ")} WHERE id = ? AND user_id = ?`,
+    values
   );
+  
   return { id: todoId, ...data };
 };
 
