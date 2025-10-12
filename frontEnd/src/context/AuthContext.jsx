@@ -5,12 +5,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem("user");
-    if (saved) {
-      JSON.parse(saved);
-    } else {
-      return null;
-    }
-    // return saved ? JSON.parse(saved) : null;
+    return saved ? JSON.parse(saved) : null;
   });
 
   const login = (userData, token) => {

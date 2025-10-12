@@ -24,7 +24,7 @@ const loginController = async (req, res) => {
     const user = await loginUserService(credentials);
 
     res.status(200).json({
-      message: "Login successful",
+      message: user.message,
       token: user,
     });
   } catch (error) {

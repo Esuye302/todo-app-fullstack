@@ -3,16 +3,13 @@ import API from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
-const Signup = () => {
+const Login = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
-  // 💡 This holds any success or error messages
-  const [message, setMessage] = useState("");
+
+  const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
+  const [message, setMessage] = useState(""); // ✅ success message
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,24 +17,26 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const res = await API.post("/auth/register", form);
-      // Optionally, auto-login after signup
+    setError("");
+    setMessage("");
 
-      // ✅ show success message before navigating
-      setMessage("Signup successful! Redirecting...");
-      const loginRes = await API.post("/auth/login", {
-        email: form.email,
-        password: form.password,
-      });
-      login(loginRes.data.user, loginRes.data.token);
-      // small delay so user sees the message
-      setTimeout(() => navigate("/dashboard"), 1500);
-      
+    try {
+      // 🧠 Send login credentials to backend
+      const res = await API.post("/auth/login", form);
+     
+      login(res.data, res.data.token);
+
+      // ✅ Show success message
+      setMessage("✅ Login successful! Redirecting...");
+
+      // 🕒 Redirect to dashboard after short delay
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1500);
     } catch (err) {
-      console.error(err.response?.data || err.message);
-      // ❌ show error message from backend or default
-      setError(err.response?.data?.message || "Something went wrong!");
+      console.log(err)
+      console.error(err.response?.data?.message || err.message);
+      setError( "❌ Invalid email or password");
     }
   };
 
@@ -47,7 +46,7 @@ const Signup = () => {
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded shadow-md w-full max-w-md"
       >
-        <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
 
         <input
           type="email"
@@ -56,6 +55,7 @@ const Signup = () => {
           className="w-full mb-4 p-2 border rounded"
           onChange={handleChange}
         />
+
         <input
           type="password"
           name="password"
@@ -63,10 +63,12 @@ const Signup = () => {
           className="w-full mb-6 p-2 border rounded"
           onChange={handleChange}
         />
+
         <button className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
-          Sign Up
+          Login
         </button>
-        {/* 💬 Message feedback area */}
+
+        {/* ✅ Show messages */}
         {message && (
           <p className="text-green-600 text-center mt-4 font-semibold">
             {message}
@@ -77,9 +79,9 @@ const Signup = () => {
         )}
         {/* 🔗 Link to Signup */}
         <p className="text-center mt-6 text-gray-700">
-         Already have an account?{" "}
-          <Link to="/" className="text-blue-500 hover:underline">
-            Log in here
+          Don’t have an account?{" "}
+          <Link to="/signup" className="text-blue-500 hover:underline">
+            Sign up here
           </Link>
         </p>
       </form>
@@ -87,4 +89,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Login;
